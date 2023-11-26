@@ -4,6 +4,7 @@ import { createCardTemplate } from './templates/card';
 
 import 'normalize.css';
 import 'simplelightbox/dist/simple-lightbox.min.css';
+import { notifyIsTotal } from './notification';
 
 const refs = {
   form: document.querySelector('#search-form'),
@@ -18,6 +19,7 @@ let modal;
 
 refs.form.addEventListener('submit', async event => {
   event.preventDefault();
+  observe.unobserve(refs.guard);
 
   const formData = new FormData(refs.form);
 
@@ -28,10 +30,12 @@ refs.form.addEventListener('submit', async event => {
   });
 
   refs.root.innerHTML = '';
-  searchQuery = data.searchQuery;
+  searchQuery = data.searchQuery.trim();
   page = 1;
 
-  const { hits, totalHits } = await fetchImages(data.searchQuery, page);
+  if (!searchQuery) return;
+
+  const { hits, totalHits } = await fetchImages(searchQuery, page, true);
 
   totalLength = hits.length;
 
@@ -43,16 +47,9 @@ refs.form.addEventListener('submit', async event => {
     overlayOpacity: 0.8,
   });
 
-  const { height: cardHeight } =
-    refs.root.firstElementChild.getBoundingClientRect();
-
-  window.scrollBy({
-    top: cardHeight * 2,
-    behavior: 'smooth',
-  });
-
   if (totalHits === totalLength) {
     observe.disconnect();
+    notifyIsTotal();
   } else {
     observe.observe(refs.guard);
   }
@@ -60,7 +57,7 @@ refs.form.addEventListener('submit', async event => {
 
 const options = {
   root: null,
-  rootMargin: '50px',
+  rootMargin: '100px',
   threshold: 1.0,
 };
 
@@ -81,6 +78,7 @@ function handleLoadMore(entries) {
 
       if (totalHits === totalLength) {
         observe.disconnect();
+        notifyIsTotal();
       }
     }
   });

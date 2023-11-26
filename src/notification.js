@@ -20,3 +20,12 @@ export const notifySuccess = value => {
     position: 'topRight',
   });
 };
+
+export const notifyIsTotal = value => {
+  iziToast.show({
+    title: 'Hey!',
+    message: `We're sorry, but you've reached the end of search results.`,
+    color: 'orange',
+    position: 'topRight',
+  });
+};
