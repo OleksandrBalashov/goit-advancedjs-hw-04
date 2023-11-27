@@ -23,19 +23,23 @@ refs.form.addEventListener('submit', async event => {
 
   const formData = new FormData(refs.form);
 
-  const data = {};
+  const dataForm = {};
 
   formData.forEach((value, key) => {
-    data[key] = value;
+    dataForm[key] = value;
   });
 
   refs.root.innerHTML = '';
-  searchQuery = data.searchQuery.trim();
+  searchQuery = dataForm.searchQuery.trim();
   page = 1;
 
   if (!searchQuery) return;
 
-  const { hits, totalHits } = await fetchImages(searchQuery, page, true);
+  const data = await fetchImages(searchQuery, page, true);
+
+  if (!data) return;
+
+  const { hits, totalHits } = data;
 
   totalLength = hits.length;
 
